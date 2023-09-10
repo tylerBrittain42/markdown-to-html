@@ -1,4 +1,4 @@
-package main
+package caps
 
 import (
 	"bufio"
@@ -19,7 +19,7 @@ func check(e error) {
 	}
 }
 
-func main() {
+func caps() {
 	// REFERENCE: this is how to make a map
 	// markToHtml := make(map[string]tag)
 	// markToHtml := map[string]tag{
