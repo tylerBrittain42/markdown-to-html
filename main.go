@@ -2,14 +2,13 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"strings"
 )
 
 type tag struct {
-	open  string
-	close string
+	open string
+	// close string
 }
 
 // stealing from gobyexample.com
@@ -20,30 +19,20 @@ func check(e error) {
 }
 
 func main() {
-	// REFERENCE: this is how to make a map
-	// markToHtml := make(map[string]tag)
-	// markToHtml := map[string]tag{
-	// 	"#":      {"<h1>", "</h1>"},
-	// 	"##":     {"<h2>", "</h2>"},
-	// 	"###":    {"<h3>", "</h3>"},
-	// 	"####":   {"<h4>", "</h4>"},
-	// 	"#####":  {"<h5>", "</h5>"},
-	// 	"######": {"<h6>", "</h6>"}}
-	// simultaneousHandlerExample("read_input.md")
-	input := strings.Split(os.Args[1], ".")
-	fileName, extension := input[0], input[1]
-	fmt.Println(fileName)
-	fmt.Println(extension)
-	
-	makeCapsLock(fileName, extension)
+	name := "sample.txt"
+	convert(name)
+
 }
 
-func makeCapsLock(fileName string, extension string) {
-	readFile, err := os.Open(fileName + "." + extension)
+// no parsing for now
+func convert(filename string) {
+	name, extension := parseFilename(filename)
+
+	readFile, err := os.Open(name + "." + extension)
 	check(err)
 	defer readFile.Close()
 
-	writeFile, err := os.Create(fileName + "_caps." + extension)
+	writeFile, err := os.Create(name + "_markdown." + extension)
 	check(err)
 	defer writeFile.Close()
 
@@ -51,35 +40,51 @@ func makeCapsLock(fileName string, extension string) {
 	writer := bufio.NewWriter(writeFile)
 
 	for scanner.Scan() {
-		_,err = writer.WriteString(strings.ToUpper(scanner.Text() + "\n"))
-		check(err)
+		blockType := getBlockType(scanner.Text())
+		contents := getContents(scanner.Text())
+		htmlLine := htmlBuilder(blockType, contents)
+		writer.WriteString(htmlLine)
 	}
 	err = writer.Flush()
 	check(err)
+
+}
+func htmlBuilder(blockType string, contents string) string {
+	blockStart := "<" + blockType + ">"
+	blockEnd := "</" + blockType + ">"
+	html := blockStart + contents + blockEnd
+	return html
+}
+func getContents(line string) string {
+	return strings.SplitN(line, " ", 2)[1]
+}
+func getBlockType(line string) string {
+
+	blockMarkSymbols := map[string]string{
+		"#":      "h1",
+		"##":     "h2",
+		"###":    "h3",
+		"####":   "h4",
+		"#####":  "h5",
+		"######": "h6",
+		"1.":     "ol", //unsure how to handle ordered lists
+		"-":      "ul",
+		"---":    "/br",
+		// "\n": "<p>", //unsure how to handle paragraphs
+		// block qyotes
+		// code
+		// DREAM
+		// table
+		// checklist
+
+	}
+	token := strings.Split(line, " ")[0]
+	blockType := blockMarkSymbols[token]
+
+	return blockType
 }
 
-// this actually has a cool example of how the file handlers interact
-// if you scan after the flush then you will recieve the updated text
-// however if you scan beforehand, that scanned original text will remain
-func simultaneousHandlerExample(fileName string) {
-	// setup of files
-	filePath := fileName
-	fileWrite, err := os.OpenFile(filePath, os.O_RDWR, 0777)
-	check(err)
-	defer fileWrite.Close()
-	fileRead, err := os.Open(filePath)
-	check(err)
-	defer fileRead.Close()
-
-	scanner := bufio.NewScanner(fileRead)
-	scanner.Scan()
-
-	writer := bufio.NewWriter(fileWrite)
-	_, err = writer.Write([]byte("This statement is from the file handler\n"))
-	check(err)
-	// fmt.Println(writer)
-	err = writer.Flush()
-	check(err)
-	// scanner.Scan()
-	fmt.Println(scanner.Text())
+func parseFilename(name string) (string, string) {
+	parts := strings.Split(name, ".")
+	return parts[0], parts[1]
 }

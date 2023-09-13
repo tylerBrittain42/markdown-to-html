@@ -1,0 +1,13 @@
+basic element types
+	heading
+	paragraph
+	blockquote
+	ordered list
+	unordered list
+	code
+	horizontal rule
+Inline
+	bold
+	italtic
+	link
+	image
