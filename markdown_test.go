@@ -12,6 +12,13 @@ func TestHtmlBuilder(t *testing.T) {
 		expectedHtml string
 	}{
 		{"h1","Title", "<h1>Title</h1>"},
+		{"h2","Title", "<h2>Title</h2>"},
+		{"h3","Title", "<h3>Title</h3>"},
+		{"h4","Title", "<h4>Title</h4>"},
+		{"h5","Title", "<h5>Title</h5>"},
+		{"h6","Title", "<h6>Title</h6>"},
+		{"ol","1. this is an ordered list","<ol>1. this is an ordered list</ol>"},
+		{"ul","1. this is an unordered list","<ul>1. this is an unordered list</ul>"},
 	}
 	for _, tt := range tests {
 		testname := fmt.Sprintf("input: %s, %s", tt.inputBlock, tt.inputContent)
@@ -57,7 +64,7 @@ func TestGetBlockType(t *testing.T) {
 		{"###### this is a heading", "h6"},
 		{"1. this is an ordered list", "ol"},
 		{"- this is an unordered list", "ul"},
-		{"--- this is a line break", "/br"},
+		{"--- this is a line break", "br"},
 	}
 	for _, tt := range tests {
 		testname := fmt.Sprintf("input: %s", tt.input)

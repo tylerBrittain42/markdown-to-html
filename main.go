@@ -2,14 +2,18 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"strings"
+	
 )
 
 type tag struct {
 	open string
 	// close string
 }
+
+
 
 // stealing from gobyexample.com
 func check(e error) {
@@ -19,9 +23,23 @@ func check(e error) {
 }
 
 func main() {
-	name := "sample.txt"
-	convert(name)
+	// name := "sample.txt"
+	// convert(name)
 
+	fmt.Println(strings.Contains("this is a test", "\n"))
+	// var s Stack
+	// fmt.Println(s)
+	// s.Push("1asdf")
+	// s.Push("2fast") 
+	// s.Push("3asdf")
+	// fmt.Println(s)
+	// fmt.Println("peaked: " + s.Peak())
+	// s.Pop()
+	// fmt.Println(s.Pop())
+	// fmt.Println(s.Pop())
+	// fmt.Println(s.Pop())
+	// fmt.Println(s.Pop())
+  
 }
 
 // no parsing for now
@@ -40,15 +58,26 @@ func convert(filename string) {
 	writer := bufio.NewWriter(writeFile)
 
 	for scanner.Scan() {
-		blockType := getBlockType(scanner.Text())
+		// blockType := getBlockType(scanner.Text())
 		contents := getContents(scanner.Text())
-		htmlLine := htmlBuilder(blockType, contents)
+		// htmlLine := htmlBuilder(blockType, contents)
+		htmlLine := parseLine(contents)
 		writer.WriteString(htmlLine)
 	}
 	err = writer.Flush()
 	check(err)
 
 }
+
+func parseLine(line string) string {
+	// tokenStack = []string
+	// tokenStack = 
+	if strings.Contains(line,"\n") {
+		return "new line character detected"
+	}
+	return "a"
+}
+
 func htmlBuilder(blockType string, contents string) string {
 	blockStart := "<" + blockType + ">"
 	blockEnd := "</" + blockType + ">"
@@ -69,7 +98,7 @@ func getBlockType(line string) string {
 		"######": "h6",
 		"1.":     "ol", //unsure how to handle ordered lists
 		"-":      "ul",
-		"---":    "/br",
+		"---":    "br",
 		// "\n": "<p>", //unsure how to handle paragraphs
 		// block qyotes
 		// code
