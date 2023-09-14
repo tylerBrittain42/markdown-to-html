@@ -7,24 +7,24 @@ import (
 
 func TestHtmlBuilder(t *testing.T) {
 	tests := []struct {
-		inputBlock        string
+		inputBlock   string
 		inputContent string
 		expectedHtml string
 	}{
-		{"h1","Title", "<h1>Title</h1>"},
-		{"h2","Title", "<h2>Title</h2>"},
-		{"h3","Title", "<h3>Title</h3>"},
-		{"h4","Title", "<h4>Title</h4>"},
-		{"h5","Title", "<h5>Title</h5>"},
-		{"h6","Title", "<h6>Title</h6>"},
-		{"ol","1. this is an ordered list","<ol>1. this is an ordered list</ol>"},
-		{"ul","1. this is an unordered list","<ul>1. this is an unordered list</ul>"},
+		{"h1", "Title", "<h1>Title</h1>"},
+		{"h2", "Title", "<h2>Title</h2>"},
+		{"h3", "Title", "<h3>Title</h3>"},
+		{"h4", "Title", "<h4>Title</h4>"},
+		{"h5", "Title", "<h5>Title</h5>"},
+		{"h6", "Title", "<h6>Title</h6>"},
+		{"ol", "1. this is an ordered list", "<ol>1. this is an ordered list</ol>"},
+		{"ul", "1. this is an unordered list", "<ul>1. this is an unordered list</ul>"},
 	}
 	for _, tt := range tests {
 		testname := fmt.Sprintf("input: %s, %s", tt.inputBlock, tt.inputContent)
 		fmt.Println(testname)
 		t.Run(testname, func(t *testing.T) {
-			ans := htmlBuilder(tt.inputBlock,tt.inputContent)
+			ans := htmlBuilder(tt.inputBlock, tt.inputContent)
 			if ans != tt.expectedHtml {
 				t.Errorf("got %s, wanted %s", ans, tt.expectedHtml)
 			}
@@ -33,7 +33,7 @@ func TestHtmlBuilder(t *testing.T) {
 }
 func TestGetContent(t *testing.T) {
 	tests := []struct {
-		input        string
+		input           string
 		expectedContent string
 	}{
 		{"# singleSpace", "singleSpace"},

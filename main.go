@@ -5,15 +5,12 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	
 )
 
 type tag struct {
 	open string
 	// close string
 }
-
-
 
 // stealing from gobyexample.com
 func check(e error) {
@@ -30,7 +27,7 @@ func main() {
 	// var s Stack
 	// fmt.Println(s)
 	// s.Push("1asdf")
-	// s.Push("2fast") 
+	// s.Push("2fast")
 	// s.Push("3asdf")
 	// fmt.Println(s)
 	// fmt.Println("peaked: " + s.Peak())
@@ -39,7 +36,7 @@ func main() {
 	// fmt.Println(s.Pop())
 	// fmt.Println(s.Pop())
 	// fmt.Println(s.Pop())
-  
+
 }
 
 // no parsing for now
@@ -71,8 +68,8 @@ func convert(filename string) {
 
 func parseLine(line string) string {
 	// tokenStack = []string
-	// tokenStack = 
-	if strings.Contains(line,"\n") {
+	// tokenStack =
+	if strings.Contains(line, "\n") {
 		return "new line character detected"
 	}
 	return "a"
