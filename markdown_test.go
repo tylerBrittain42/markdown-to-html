@@ -5,6 +5,31 @@ import (
 	"testing"
 )
 
+func TestParse(t *testing.T) {
+	var foo Stack
+	foo.Push("a")
+	tests := []struct {
+		inputString   string
+		expectedStack Stack
+	}{
+		{"# This is a single line", Stack{"#"}},
+		{"## This has **underlined** characters", Stack{"##","**","**"}},
+		{"## This has **underlined** characters and *italiczed ones*", Stack{"##","**","**","*","*"}},
+	}
+	for _, tt := range tests {
+		testname := fmt.Sprintf("input: %s", tt.inputString)
+		fmt.Println(testname)
+		t.Run(testname, func(t *testing.T) {
+			ans := parse(tt.inputString)
+			// if ans.Equals(&tt.expectedStack){
+			if !ans.Equals(&tt.expectedStack){
+				t.Errorf("got %s, wanted %s", ans, tt.expectedStack)
+			}
+			})
+		}
+	}
+
+
 func TestHtmlBuilder(t *testing.T) {
 	tests := []struct {
 		inputBlock   string

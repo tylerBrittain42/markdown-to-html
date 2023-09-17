@@ -1,5 +1,6 @@
 package main
 
+
 // TODO: add err handling
 
 type Stack []string
@@ -19,4 +20,16 @@ func (s *Stack) Pop() string {
 	temp := (*s)[len(*s)-1]
 	*s = (*s)[0 : len(*s)-1]
 	return temp
+}
+
+func (s *Stack) Equals(s2 *Stack) bool {
+	if len(*s) != len(*s2) {
+		return false
+	}
+	for i := range *s {
+		if (*s)[i] != (*s2)[i] {
+			return false
+		}
+	}
+	return true
 }

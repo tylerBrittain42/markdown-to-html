@@ -9,8 +9,16 @@ import (
 
 type tag struct {
 	open string
-	// close string
+	tagType TagType
+	close string
 }
+
+type TagType int
+const (
+	block int = iota
+	inline
+	list // figure out better name?
+)
 
 // stealing from gobyexample.com
 func check(e error) {
@@ -38,6 +46,68 @@ func main() {
 	// fmt.Println(s.Pop())
 
 }
+
+func parse(line string) Stack {
+	blockSymbols := map[string]string{
+		"#":      "h1",
+		"##":     "h2",
+		"###":    "h3",
+		"####":   "h4",
+		"#####":  "h5",
+		"######": "h6",
+		"1.":     "ol", //unsure how to handle ordered lists
+		"-":      "ul",
+		"---":    "br",
+		// "**": "bold",
+		// "*": "italic",
+		// "\n": "<p>", //unsure how to handle paragraphs
+		// block qyotes
+		// code
+		// DREAM
+		// table
+		// checklist
+
+	} 
+	// LETS SPLIT BLOCK PARSING FROM inline
+	// 1. BLOCK PARSE FIRST TOKEN
+	// 2. CONTINUE WITH PARSING EVERYTING ELSE
+	// WHY THE FUCK AM I WORRYING ABOUT UL AND OL
+	// IT WILL ONLY MATTER ON THE REVERSE
+	// LMAOOOOOOOOOOOOOOO
+	var tokenStack Stack
+
+	// for _,v := range parts {
+	// 	if MarkSymbols[v] != "" {
+	// 		tokenStack.Push(v)
+	// 	} else if v[0] == '*' && v[1] == '*' {
+	// 		tokenStack.Push("**")
+	// 	} else if v[0] == '*' && v[1] != '*'{
+	// 		tokenStack.Push("*")
+	// 	}
+	// 		
+	// }
+
+	// Block Token Check
+	blockToken := strings.Split(line, " ")[0]
+	fmt.Println(blockToken)
+	if blockSymbols[blockToken] != "" {
+		tokenStack.Push(blockToken)
+	}
+
+	// inline check
+	// Currently just ** and *
+	for i := 0; i < len(line); i++{
+		if (i+1) < len(line) && line[i] == '*' && line[i+1] == '*' {
+			tokenStack.Push("**")
+			i++
+		} else if line[i] == '*'{
+			tokenStack.Push("*")
+		}
+	}
+			
+	return tokenStack
+}
+
 
 // no parsing for now
 func convert(filename string) {
@@ -69,9 +139,9 @@ func convert(filename string) {
 func parseLine(line string) string {
 	// tokenStack = []string
 	// tokenStack =
-	if strings.Contains(line, "\n") {
-		return "new line character detected"
-	}
+	// var tokenStack Stack = []{"this","is"}
+
+
 	return "a"
 }
 
