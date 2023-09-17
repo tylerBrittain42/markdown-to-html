@@ -1,6 +1,5 @@
 package main
 
-
 // TODO: add err handling
 
 type Stack []string

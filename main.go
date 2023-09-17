@@ -8,12 +8,13 @@ import (
 )
 
 type tag struct {
-	open string
+	open    string
 	tagType TagType
-	close string
+	close   string
 }
 
 type TagType int
+
 const (
 	block int = iota
 	inline
@@ -32,82 +33,71 @@ func main() {
 	// convert(name)
 
 	fmt.Println(strings.Contains("this is a test", "\n"))
-	// var s Stack
-	// fmt.Println(s)
-	// s.Push("1asdf")
-	// s.Push("2fast")
-	// s.Push("3asdf")
-	// fmt.Println(s)
-	// fmt.Println("peaked: " + s.Peak())
-	// s.Pop()
-	// fmt.Println(s.Pop())
-	// fmt.Println(s.Pop())
-	// fmt.Println(s.Pop())
-	// fmt.Println(s.Pop())
+
+	// var foo strings.Builder
+	// fmt.Println(foo.String())
+	// foo.WriteString("ha")
+	// fmt.Println(foo.String())
 
 }
 
-func parse(line string) Stack {
-	blockSymbols := map[string]string{
-		"#":      "h1",
-		"##":     "h2",
-		"###":    "h3",
-		"####":   "h4",
-		"#####":  "h5",
-		"######": "h6",
-		"1.":     "ol", //unsure how to handle ordered lists
-		"-":      "ul",
-		"---":    "br",
-		// "**": "bold",
-		// "*": "italic",
-		// "\n": "<p>", //unsure how to handle paragraphs
-		// block qyotes
-		// code
-		// DREAM
-		// table
-		// checklist
+func openTag(tag string) string {
+	return "<" + tag + ">"
+}
 
-	} 
-	// LETS SPLIT BLOCK PARSING FROM inline
-	// 1. BLOCK PARSE FIRST TOKEN
-	// 2. CONTINUE WITH PARSING EVERYTING ELSE
-	// WHY THE FUCK AM I WORRYING ABOUT UL AND OL
-	// IT WILL ONLY MATTER ON THE REVERSE
-	// LMAOOOOOOOOOOOOOOO
+func closeTag(tag string) string {
+	return "</" + tag + ">"
+}
+
+func parse(line string) string {
+	// TODO consider using character array
+	var htmlBuilder strings.Builder
 	var tokenStack Stack
 
-	// for _,v := range parts {
-	// 	if MarkSymbols[v] != "" {
-	// 		tokenStack.Push(v)
-	// 	} else if v[0] == '*' && v[1] == '*' {
-	// 		tokenStack.Push("**")
-	// 	} else if v[0] == '*' && v[1] != '*'{
-	// 		tokenStack.Push("*")
-	// 	}
-	// 		
-	// }
-
 	// Block Token Check
-	blockToken := strings.Split(line, " ")[0]
-	fmt.Println(blockToken)
-	if blockSymbols[blockToken] != "" {
-		tokenStack.Push(blockToken)
+	first := strings.Split(line, " ")[0]
+	block := getBlockType(first)
+	if block != "" {
+		htmlBuilder.WriteString(openTag(block))
+		// plus one  because markdown requires a space
+		// is "# " NOT "#"
+		line = line[len(first) + 1:]
+
 	}
 
-	// inline check
+	// inline check and building
 	// Currently just ** and *
-	for i := 0; i < len(line); i++{
+	bold := false
+	italic := false
+	for i := 0; i < len(line); i++ {
 		if (i+1) < len(line) && line[i] == '*' && line[i+1] == '*' {
+			bold = !bold
 			tokenStack.Push("**")
 			i++
-		} else if line[i] == '*'{
+			if bold {
+				htmlBuilder.WriteString(openTag("strong"))
+			} else {
+				htmlBuilder.WriteString(closeTag("strong"))
+			}
+		} else if line[i] == '*' {
+			italic = !italic
 			tokenStack.Push("*")
+			if italic {
+				htmlBuilder.WriteString(openTag("em"))
+			} else {
+				htmlBuilder.WriteString(closeTag("em"))
+			}
+		} else {
+			htmlBuilder.WriteByte(line[i])
 		}
 	}
-			
-	return tokenStack
-}
 
+	if block != "" {
+		htmlBuilder.WriteString(closeTag(block))
+	}
+	// fmt.Println(htmlBuilder.String())
+	return htmlBuilder.String()
+}
 
 // no parsing for now
 func convert(filename string) {
@@ -141,7 +131,6 @@ func parseLine(line string) string {
 	// tokenStack =
 	// var tokenStack Stack = []{"this","is"}
 
-
 	return "a"
 }
 
@@ -154,7 +143,7 @@ func htmlBuilder(blockType string, contents string) string {
 func getContents(line string) string {
 	return strings.SplitN(line, " ", 2)[1]
 }
-func getBlockType(line string) string {
+func getBlockType(token string) string {
 
 	blockMarkSymbols := map[string]string{
 		"#":      "h1",
@@ -174,10 +163,7 @@ func getBlockType(line string) string {
 		// checklist
 
 	}
-	token := strings.Split(line, " ")[0]
-	blockType := blockMarkSymbols[token]
-
-	return blockType
+	return blockMarkSymbols[token]
 }
 
 func parseFilename(name string) (string, string) {
