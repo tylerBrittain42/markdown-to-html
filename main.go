@@ -114,35 +114,19 @@ func convert(filename string) {
 	scanner := bufio.NewScanner(readFile)
 	writer := bufio.NewWriter(writeFile)
 
-	for scanner.Scan() {
-		// blockType := getBlockType(scanner.Text())
-		contents := getContents(scanner.Text())
-		// htmlLine := htmlBuilder(blockType, contents)
-		htmlLine := parseLine(contents)
-		writer.WriteString(htmlLine)
-	}
+	scanner.Scan()
+	// for scanner.Scan() {
+	// 	// blockType := getBlockType(scanner.Text())
+	// 	contents := getContents(scanner.Text())
+	// 	// htmlLine := htmlBuilder(blockType, contents)
+	// 	htmlLine := parseLine(contents)
+	// 	writer.WriteString(htmlLine)
+	// }
 	err = writer.Flush()
 	check(err)
 
 }
 
-func parseLine(line string) string {
-	// tokenStack = []string
-	// tokenStack =
-	// var tokenStack Stack = []{"this","is"}
-
-	return "a"
-}
-
-func htmlBuilder(blockType string, contents string) string {
-	blockStart := "<" + blockType + ">"
-	blockEnd := "</" + blockType + ">"
-	html := blockStart + contents + blockEnd
-	return html
-}
-func getContents(line string) string {
-	return strings.SplitN(line, " ", 2)[1]
-}
 func getBlockType(token string) string {
 
 	blockMarkSymbols := map[string]string{
