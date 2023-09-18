@@ -2,7 +2,8 @@ package main
 
 import (
 	"bufio"
-	"fmt"
+	"io"
+	// "fmt"
 	"os"
 	"strings"
 )
@@ -15,16 +16,19 @@ func check(e error) {
 }
 
 func main() {
-	// name := "sample.txt"
-	// convert(name)
+	filename := "test/sample.txt"
+	name, _ := parseFilename(filename)
 
-	fmt.Println(strings.Contains("this is a test", "\n"))
+	readFile, err := os.Open(filename)
+	check(err)
+	defer readFile.Close()
 
-	convert("sample.txt")
-	// var foo strings.Builder
-	// fmt.Println(foo.String())
-	// foo.WriteString("ha")
-	// fmt.Println(foo.String())
+	writeFile, err := os.Create(name + ".html")
+	check(err)
+	defer writeFile.Close()
+
+	convert(readFile, writeFile)
+
 
 }
 
@@ -82,32 +86,23 @@ func buildLine(line string) string {
 	if block != "" {
 		htmlBuilder.WriteString(closeTag(block))
 	}
-	htmlBuilder.WriteString("\n")
 	return htmlBuilder.String()
 }
 
 // SPLIT THIS INTO MULTIPLE FILES FOR TESTING
 // SEE STACK OVERFLOW PAGE
-func convert(filename string) {
-	name, _ := parseFilename(filename)
-
-	readFile, err := os.Open(filename)
-	check(err)
-	defer readFile.Close()
-
-	writeFile, err := os.Create(name + ".html")
-	check(err)
-	defer writeFile.Close()
-
+func convert(readFile io.Reader, writeFile io.Writer) {
+	
 	scanner := bufio.NewScanner(readFile)
 	writer := bufio.NewWriter(writeFile)
 
 	for scanner.Scan() {
 		htmlLine := buildLine(scanner.Text())
-		_, err := writer.WriteString(htmlLine)
+		_, err := writer.WriteString(htmlLine + "\n")
 		check(err)
 	}
-	err = writer.Flush()
+
+	err := writer.Flush()
 	check(err)
 
 }
