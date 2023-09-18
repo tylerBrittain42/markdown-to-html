@@ -7,20 +7,6 @@ import (
 	"strings"
 )
 
-type tag struct {
-	open    string
-	tagType TagType
-	close   string
-}
-
-type TagType int
-
-const (
-	block int = iota
-	inline
-	list // figure out better name?
-)
-
 // stealing from gobyexample.com
 func check(e error) {
 	if e != nil {
@@ -34,6 +20,7 @@ func main() {
 
 	fmt.Println(strings.Contains("this is a test", "\n"))
 
+	convert("sample.txt")
 	// var foo strings.Builder
 	// fmt.Println(foo.String())
 	// foo.WriteString("ha")
@@ -49,7 +36,7 @@ func closeTag(tag string) string {
 	return "</" + tag + ">"
 }
 
-func parse(line string) string {
+func buildLine(line string) string {
 	// TODO consider using character array
 	var htmlBuilder strings.Builder
 	var tokenStack Stack
@@ -95,33 +82,31 @@ func parse(line string) string {
 	if block != "" {
 		htmlBuilder.WriteString(closeTag(block))
 	}
-	// fmt.Println(htmlBuilder.String())
+	htmlBuilder.WriteString("\n")
 	return htmlBuilder.String()
 }
 
-// no parsing for now
+// SPLIT THIS INTO MULTIPLE FILES FOR TESTING
+// SEE STACK OVERFLOW PAGE
 func convert(filename string) {
-	name, extension := parseFilename(filename)
+	name, _ := parseFilename(filename)
 
-	readFile, err := os.Open(name + "." + extension)
+	readFile, err := os.Open(filename)
 	check(err)
 	defer readFile.Close()
 
-	writeFile, err := os.Create(name + "_markdown." + extension)
+	writeFile, err := os.Create(name + ".html")
 	check(err)
 	defer writeFile.Close()
 
 	scanner := bufio.NewScanner(readFile)
 	writer := bufio.NewWriter(writeFile)
 
-	scanner.Scan()
-	// for scanner.Scan() {
-	// 	// blockType := getBlockType(scanner.Text())
-	// 	contents := getContents(scanner.Text())
-	// 	// htmlLine := htmlBuilder(blockType, contents)
-	// 	htmlLine := parseLine(contents)
-	// 	writer.WriteString(htmlLine)
-	// }
+	for scanner.Scan() {
+		htmlLine := buildLine(scanner.Text())
+		_, err := writer.WriteString(htmlLine)
+		check(err)
+	}
 	err = writer.Flush()
 	check(err)
 
