@@ -9,7 +9,7 @@ import (
 
 func TestBuildLine(t *testing.T) {
 	tests := []struct {
-		inputString   string
+		inputString    string
 		expectedString string
 	}{
 		{"# This is a single line", "<h1>This is a single line</h1>"},
@@ -27,66 +27,56 @@ func TestBuildLine(t *testing.T) {
 			}
 		})
 	}
+	fmt.Println()
+}
+
+type convertCase struct {
+	testName string
+	input    string
+	output   string
 }
 
 func TestConvert(t *testing.T) {
-	mockIO := []struct {
-		testName string
-		input string
-		output string
-	}{
-		{"Single block", "# This is a single line", "<h1>This is a single line</h1>"},
-		{"Single block with bold and italic", "## **This** *is* a single line", "<h2><strong>This</strong> <em>is</em> a single line</h2>"},
-	}
 
-	// var buffer bytes.Buffer
-	// buffer.WriteString("This is a test\nThis is the second line of the test")
-	// testScanner := bufio.NewScanner(&buffer)
-	// testScanner.Scan()
-	// fmt.Println(testScanner.Text())
-	// fmt.Println("z")
-	// testScanner.Scan()
-	// fmt.Println(testScanner.Text())
+	tests := [][]convertCase{
+		{
+			{"Single block", "# This is a single line", "<h1>This is a single line</h1>"},
+			{"Single block with bold and italic", "## **This** *is* a single line", "<h2><strong>This</strong> <em>is</em> a single line</h2>"},
+		},
+		{
+			{"Single block2", "### This is a single line from the second case", "<h3>This is a single line from the second case</h3>"},
+			{"Single block with bold and italic", "## **This** *is* a single line", "<h2><strong>This</strong> <em>is</em> a single line</h2>"},
+		},
+	}
 
 	// TESTING STARTS HERE
-	
 	// Note: This can technically be one loop, but I am focusing on readability
 
-	// load buffer
-	var readBuffer, writerBuffer bytes.Buffer
-	for _, mock := range mockIO {
-		readBuffer.WriteString(mock.input + "\n")	
+	for _, tt := range tests {
+
+		// load buffer
+		var readBuffer, writerBuffer bytes.Buffer
+		for _, mock := range tt {
+			readBuffer.WriteString(mock.input + "\n")
+		}
+
+		//perform check here
+		testname := fmt.Sprintf("name: %s", "Convert() test")
+		fmt.Println(testname)
+		t.Run(testname, func(t *testing.T) {
+			checkOutput := bufio.NewScanner(&writerBuffer)
+			convert(&readBuffer, &writerBuffer)
+			checkOutput.Scan()
+			for _, mock := range tt {
+				if mock.output != checkOutput.Text() {
+					t.Errorf("got .%s., wanted .%s.", checkOutput.Text(), mock.output)
+					break
+				}
+				checkOutput.Scan()
+			}
+		})
 	}
 
-
-	//perform check here
-	testname := fmt.Sprintf("name: %s", "Convert() test")
-	fmt.Println(testname)
-	t.Run(testname, func(t *testing.T) {
-		checkOutput := bufio.NewScanner(&writerBuffer)
-		convert(&readBuffer, &writerBuffer)
-		checkOutput.Scan()
-		for _, mock := range mockIO {
-			if mock.output != checkOutput.Text(){
-				t.Errorf("got .%s., wanted .%s.", checkOutput.Text(), mock.output)
-				break
-			}
-			checkOutput.Scan()
-		}
-	})
-
-	// fmt.Println("Convert tests")
-	// for _, tt := range tests {
-	// 	testname := fmt.Sprintf("name: %s", tt.testName)
-	// 	fmt.Println(testname)
-	// 	t.Run(testname, func(t *testing.T) {
-	// 		convert(tt.inputFile)
-	//
-	// 		if ans != tt.expectedStack {
-	// 			t.Errorf("got %s, wanted %s", ans, tt.expectedStack)
-	// 		}
-	// 	})
-	// }
 }
 
 func TestGetBlockType(t *testing.T) {

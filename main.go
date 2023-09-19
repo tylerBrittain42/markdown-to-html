@@ -29,7 +29,6 @@ func main() {
 
 	convert(readFile, writeFile)
 
-
 }
 
 func openTag(tag string) string {
@@ -52,7 +51,7 @@ func buildLine(line string) string {
 		htmlBuilder.WriteString(openTag(block))
 		// plus one  because markdown requires a space
 		// is "# " NOT "#"
-		line = line[len(first) + 1:]
+		line = line[len(first)+1:]
 
 	}
 
@@ -92,7 +91,7 @@ func buildLine(line string) string {
 // SPLIT THIS INTO MULTIPLE FILES FOR TESTING
 // SEE STACK OVERFLOW PAGE
 func convert(readFile io.Reader, writeFile io.Writer) {
-	
+
 	scanner := bufio.NewScanner(readFile)
 	writer := bufio.NewWriter(writeFile)
 
