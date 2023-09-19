@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"testing"
@@ -21,7 +22,6 @@ func TestBuildLine(t *testing.T) {
 		fmt.Println(testname)
 		t.Run(testname, func(t *testing.T) {
 			ans := buildLine(tt.inputString)
-			// if ans.Equals(&tt.expectedStack){
 			if ans != tt.expectedString {
 				t.Errorf("got %s, wanted %s", ans, tt.expectedString)
 			}
@@ -35,8 +35,8 @@ func TestConvert(t *testing.T) {
 		input string
 		output string
 	}{
-		{"Single block", "# This is single line", "<h1>This is a single line</h1>"},
-		{"Single block with bold and italic", "## **This** *is* single line", "<h2><strong>This</strong> <em>is</em> a single line</h2>"},
+		{"Single block", "# This is a single line", "<h1>This is a single line</h1>"},
+		{"Single block with bold and italic", "## **This** *is* a single line", "<h2><strong>This</strong> <em>is</em> a single line</h2>"},
 	}
 
 	// var buffer bytes.Buffer
@@ -49,7 +49,6 @@ func TestConvert(t *testing.T) {
 	// fmt.Println(testScanner.Text())
 
 	// TESTING STARTS HERE
-	fmt.Println("Convert tests")
 	
 	// Note: This can technically be one loop, but I am focusing on readability
 
@@ -59,25 +58,22 @@ func TestConvert(t *testing.T) {
 		readBuffer.WriteString(mock.input + "\n")	
 	}
 
-	//testing
-	convert(&readBuffer, &writerBuffer)
-	fmt.Println("here")
-	fmt.Println(writerBuffer.String())
-	fmt.Println("here")
 
 	//perform check here
-
-	// for _, mock := range mockIO {
-	// 	testname := fmt.Sprintf("name: %s", mock.testName)
-	// 	fmt.Println(testname)
-	// 	t.Run(testname, func(t *testing.T) {
-	// 		convert(tt.inputFile)
-	//
-	// 		if ans != tt.expectedStack {
-	// 			t.Errorf("got %s, wanted %s", ans, tt.expectedStack)
-	// 		}
-	// 	})
-	// }
+	testname := fmt.Sprintf("name: %s", "Convert() test")
+	fmt.Println(testname)
+	t.Run(testname, func(t *testing.T) {
+		checkOutput := bufio.NewScanner(&writerBuffer)
+		convert(&readBuffer, &writerBuffer)
+		checkOutput.Scan()
+		for _, mock := range mockIO {
+			if mock.output != checkOutput.Text(){
+				t.Errorf("got .%s., wanted .%s.", checkOutput.Text(), mock.output)
+				break
+			}
+			checkOutput.Scan()
+		}
+	})
 
 	// fmt.Println("Convert tests")
 	// for _, tt := range tests {
