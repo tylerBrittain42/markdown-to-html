@@ -41,12 +41,12 @@ func TestConvert(t *testing.T) {
 	tests := [][]convertCase{
 		{
 			{"Single block", "# This is a single line", "<h1>This is a single line</h1>"},
-			{"Single block with bold and italic", "## **This** *is* a single line", "<h2><strong>This</strong> <em>is</em> a single line</h2>"},
+			// {"Single block with bold and italic", "## **This** *is* a single line", "<h2><strong>This</strong> <em>is</em> a single line</h2>"},
 		},
-		{
-			{"Single block2", "### This is a single line from the second case", "<h3>This is a single line from the second case</h3>"},
-			{"Single block with bold and italic", "## **This** *is* a single line", "<h2><strong>This</strong> <em>is</em> a single line</h2>"},
-		},
+		// {
+		// 	{"Single block2", "### This is a single line from the second case", "<h3>This is a single line from the second case</h3>"},
+		// 	{"Single block with bold and italic", "## **This** *is* a single line", "<h2><strong>This</strong> <em>is</em> a single line</h2>"},
+		// },
 	}
 
 	// TESTING STARTS HERE

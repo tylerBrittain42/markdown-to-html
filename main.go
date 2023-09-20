@@ -88,19 +88,36 @@ func buildLine(line string) string {
 	return htmlBuilder.String()
 }
 
-// SPLIT THIS INTO MULTIPLE FILES FOR TESTING
-// SEE STACK OVERFLOW PAGE
+// NEED
+// BASIC PARAGRAPH HANDLING (BLOCK TO NON BLOCK TO BLOCK)
+// PARAGRAPH TESTING
 func convert(readFile io.Reader, writeFile io.Writer) {
 
 	scanner := bufio.NewScanner(readFile)
 	writer := bufio.NewWriter(writeFile)
+	var isPara bool
+	isFirst := true
 
 	for scanner.Scan() {
+		potentBlock := getBlockType(strings.Split(scanner.Text(), " ")[0])
+		if isFirst {
+			isFirst = false
+		} else if potentBlock == "" {
+			if !isPara {
+				writer.WriteString("\n" + openTag("p"))
+				isPara = true
+			}
+		} else if potentBlock != "" && isPara {
+			writer.WriteString(closeTag("p") + "\n")
+		} else {
+			writer.WriteString("\n")
+		}
+
 		htmlLine := buildLine(scanner.Text())
-		_, err := writer.WriteString(htmlLine + "\n")
+		_, err := writer.WriteString(htmlLine)
 		check(err)
 	}
-
+	writer.WriteString("\n")
 	err := writer.Flush()
 	check(err)
 
