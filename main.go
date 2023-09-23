@@ -2,8 +2,8 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"io"
-	// "fmt"
 	"os"
 	"strings"
 )
@@ -31,120 +31,203 @@ func main() {
 
 }
 
-func openTag(tag string) string {
-	return "<" + tag + ">"
-}
+func convert(readFile io.Reader, writeFile io.Writer) {
 
-func closeTag(tag string) string {
-	return "</" + tag + ">"
-}
+	scanner := bufio.NewScanner(readFile)
+	writer := bufio.NewWriter(writeFile)
+	// blockType := ""
 
-func buildLine(line string) string {
-	// TODO consider using character array
-	var htmlBuilder strings.Builder
-	var tokenStack Stack
+	// foo := ""
+	lastType := "first"
+	var startBlock, endBlock string
 
-	// Block Token Check
-	first := strings.Split(line, " ")[0]
-	block := getBlockType(first)
-	if block != "" {
-		htmlBuilder.WriteString(openTag(block))
-		// plus one  because markdown requires a space
-		// is "# " NOT "#"
-		line = line[len(first)+1:]
+	// newEle is how we determine if we need outer tags in the case of ol and ul
+	var newEle bool
 
-	}
+	_, err := writer.WriteString("<html>\n")
+	check(err)
 
-	// inline check and building
-	// Currently just ** and *
-	bold := false
-	italic := false
-	for i := 0; i < len(line); i++ {
-		if (i+1) < len(line) && line[i] == '*' && line[i+1] == '*' {
-			bold = !bold
-			tokenStack.Push("**")
-			i++
-			if bold {
-				htmlBuilder.WriteString(openTag("strong"))
-			} else {
-				htmlBuilder.WriteString(closeTag("strong"))
-			}
-		} else if line[i] == '*' {
-			italic = !italic
-			tokenStack.Push("*")
-			if italic {
-				htmlBuilder.WriteString(openTag("em"))
-			} else {
-				htmlBuilder.WriteString(closeTag("em"))
-			}
+	for scanner.Scan() {
+		//TODO: remove me
+		fmt.Println(scanner.Text())
+
+		var innerHtml string
+
+		block, text := splitLine(scanner.Text())
+		blockType := getBlockType(block)
+
+		if blockType == "ol" || blockType == "ul"{
+			startBlock = openTag("li")
+			endBlock = closeTag("li")
 		} else {
-			htmlBuilder.WriteByte(line[i])
+			startBlock = openTag(blockType)
+			endBlock = closeTag(blockType)
 		}
+		
+		innerHtml = getInnerText(text)
+
+		// hangle open tag
+		// handle close tag
+		// build html
+		// output
+
+		// innerText := strings.Split(scanner.Text(),blockType)
+
+		if lastType == "first" {
+			newEle = true
+
+		// }else if lastType != blockType && lastType != "first" {
+		}else if lastType != blockType && lastType == "ul" || lastType == "ol" {
+			_, err = writer.WriteString(closeTag(lastType) + "\n")
+			check(err)
+			newEle = true
+		}
+
+		if newEle {
+			switch blockType {
+			case "ul":
+				fmt.Println("in switch")
+				_, err = writer.WriteString(openTag(blockType) + "\n")
+				check(err)
+			case "ol":
+				fmt.Println("in switch")
+				_, err = writer.WriteString(openTag(blockType) + "\n")
+				check(err)
+			// headers
+			default:
+				fmt.Println("in switch")
+			}
+
+			check(err)
+		}
+
+		// // first line
+		// if lastType == "" {
+		// 	// Normal type
+		// 	if blockType != "" && blockType != "ol" && blockType != "ul" {
+		// 		startBlock = openTag(blockType)
+		// 		endBlock = closeTag(blockType)
+		// 	} else if blockType == "ol" {
+		// 		startBlock = openTag(blockType)
+		// 		endBlock = closeTag(blockType)
+		//
+		// }
+		htmlLine := createLine(startBlock, innerHtml, endBlock)
+
+		fmt.Println("startBlock:." + startBlock + ".")
+		fmt.Println("innerHtml:." + innerHtml + ".")
+		fmt.Println("endBlock:." + endBlock + ".")
+		fmt.Println("htmlLine:." + htmlLine + ".")
+
+		_, err := writer.WriteString(htmlLine)
+		check(err)
+		_, err = writer.WriteString("\n")
+		check(err)
+		lastType = blockType
+
+		newEle = false
 	}
 
-	if block != "" {
-		htmlBuilder.WriteString(closeTag(block))
-	}
+	_, err = writer.WriteString("</html>\n")
+	check(err)
+	err = writer.Flush()
+	check(err)
+
+}
+
+
+// if lastType != blockType{
+// 	writer.WriteString(closeTag(lastType) + "\n")
+// 	lastType = "none"
+// }
+//
+// if blockType == "" {
+// 	lastType = "p"
+// } else if blockType == "li" || blockType == "ul"{
+// 	lastType = blockType
+// }
+// if blockType != "" && blockType != "li" && blockType != "ul" {
+// startBlock = openTag(blockType)
+// endBlock = closeTag(blockType)
+// }
+
+func createLine(open string, text string, close string) string {
+	var htmlBuilder strings.Builder
+
+	htmlBuilder.WriteString(open)
+	htmlBuilder.WriteString(text)
+	htmlBuilder.WriteString(close)
+
 	return htmlBuilder.String()
+}
+
+func getStartBlockType(block string) string {
+	startBlock := ""
+
+	// switch block {
+	// case "li":
+		
+	return startBlock
+}
+
+//	func getBlockType(foo string) string {
+//		return ""
+//	}
+func handleEndBlockType(foo string) string {
+	return ""
 }
 
 // NEED
 // BASIC PARAGRAPH HANDLING (BLOCK TO NON BLOCK TO BLOCK)
 // PARAGRAPH TESTING
-func convert(readFile io.Reader, writeFile io.Writer) {
-
-	scanner := bufio.NewScanner(readFile)
-	writer := bufio.NewWriter(writeFile)
-	var isPara bool
-	isFirst := true
-
-	for scanner.Scan() {
-		potentBlock := getBlockType(strings.Split(scanner.Text(), " ")[0])
-		if isFirst {
-			isFirst = false
-		} else if potentBlock == "" {
-			if !isPara {
-				writer.WriteString("\n" + openTag("p"))
-				isPara = true
-			}
-		} else if potentBlock != "" && isPara {
-			writer.WriteString(closeTag("p") + "\n")
-		} else {
-			writer.WriteString("\n")
-		}
-
-		htmlLine := buildLine(scanner.Text())
-		_, err := writer.WriteString(htmlLine)
-		check(err)
-	}
-	writer.WriteString("\n")
-	err := writer.Flush()
-	check(err)
-
-}
-
-func getBlockType(token string) string {
-
-	blockMarkSymbols := map[string]string{
-		"#":      "h1",
-		"##":     "h2",
-		"###":    "h3",
-		"####":   "h4",
-		"#####":  "h5",
-		"######": "h6",
-		"1.":     "ol", //unsure how to handle ordered lists
-		"-":      "ul",
-		"---":    "br",
-		// "\n": "<p>", //unsure how to handle paragraphs
-		// block qyotes
-		// code
-		// DREAM
-		// table
-		// checklist
-
-	}
-	return blockMarkSymbols[token]
-}
+// func convert(readFile io.Reader, writeFile io.Writer) {
+//
+// 	scanner := bufio.NewScanner(readFile)
+// 	writer := bufio.NewWriter(writeFile)
+// 	var isPara bool
+// 	wasClosed := true
+// 	isFirst := true
+//
+// 	for scanner.Scan() {
+// 		potentBlock := getBlockType(strings.Split(scanner.Text(), " ")[0])
+// 		if isFirst  && potentBlock == ""{
+// 			_, err := writer.WriteString(openTag("p"))
+// 			check(err)
+// 			wasClosed = true
+// 		} else if isFirst && potentBlock != "" {
+// 		} else if potentBlock == "" {
+// 			if !isPara {
+// 				_, err := writer.WriteString("\n" + openTag("p"))
+// 				check(err)
+// 				isPara = true
+// 				wasClosed = false
+// 			}
+// 		} else if potentBlock != "" && isPara {
+// 			_, err := writer.WriteString(closeTag("p") + "\n")
+// 			check(err)
+// 			wasClosed = true
+// 		} else {
+// 			_, err := writer.WriteString("\n")
+// 			check(err)
+// 		}
+// 		isFirst = false
+//
+// 		htmlLine := buildLine(scanner.Text())
+// 		_, err := writer.WriteString(htmlLine)
+// 		check(err)
+// 		fmt.Println("HTML:." + htmlLine + ".")
+// 	}
+// 	if !wasClosed {
+// 		_, err := writer.WriteString(closeTag("p") + "\n")
+// 		check(err)
+// 	} else {
+// 		_, err := writer.WriteString("\n")
+// 		check(err)
+// 	}
+// 	err := writer.Flush()
+// 	check(err)
+//
+// }
 
 func parseFilename(name string) (string, string) {
 	parts := strings.Split(name, ".")
