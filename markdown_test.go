@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bufio"
+	"bytes"
 	"fmt"
 	"testing"
 )
@@ -107,7 +109,60 @@ func TestCloseTag(t *testing.T) {
 	}
 }
 
-//
+type convertTest struct {
+	inputFile [][]string
+	outputFile [][]string
+}
+
+
+func TestConvert(t *testing.T) {
+
+	// Input and output are separate variables because the initial <html> tag will make the lines off
+
+	inputCases := [][]string{
+		{	
+			"# This is a single line", 
+			// "## **This** *is* a single line",
+		},	
+	}
+	expectedOutputs := [][]string{
+			{
+			"<html>",
+			"<h1>This is a single line</h1>",
+			// "<h2><strong>This</strong> <em>is</em> a single line</h2>",
+			"</html>",
+			},
+		}
+	tests := []convertTest{{inputFile:inputCases, outputFile:expectedOutputs}}
+		
+				for i, tt := range tests {
+
+		// load buffer
+		var readBuffer, writerBuffer bytes.Buffer
+		fmt.Println("Adding to readBuffer")
+		for _, line := range tt.inputFile[i] {
+			fmt.Println(line)
+			readBuffer.WriteString(line + "\n")
+		}
+
+		//perform check here
+		testname := fmt.Sprintf("name: %s", "Convert() test")
+		fmt.Println(testname)
+		t.Run(testname, func(t *testing.T) {
+			convert(&readBuffer, &writerBuffer)
+			checkOutput := bufio.NewScanner(&writerBuffer)
+			for _, mock := range tt.outputFile[i] {
+				checkOutput.Scan()
+				if mock != checkOutput.Text() {
+					t.Errorf("got .%s., wanted .%s.", checkOutput.Text(), mock)
+					break
+				}
+			}
+		})
+	}
+
+}
+
 // func TestBuildLine(t *testing.T) {
 // 	tests := []struct {
 // 		inputString    string
@@ -131,53 +186,3 @@ func TestCloseTag(t *testing.T) {
 // 	fmt.Println()
 // }
 //
-// // type convertCase struct {
-// // 	testName string
-// // 	input    string
-// // 	output   string
-// // }
-// //
-// // func TestConvert(t *testing.T) {
-// //
-// // 	tests := [][]convertCase{
-// // 		{
-// // 			{"Single block", "# This is a single line", "<h1>This is a single line</h1>"},
-// // 			// {"Single block with bold and italic", "## **This** *is* a single line", "<h2><strong>This</strong> <em>is</em> a single line</h2>"},
-// // 		},
-// // 		// {
-// // 		// 	{"Single block2", "### This is a single line from the second case", "<h3>This is a single line from the second case</h3>"},
-// // 		// 	{"Single block with bold and italic", "## **This** *is* a single line", "<h2><strong>This</strong> <em>is</em> a single line</h2>"},
-// // 		// },
-// // 	}
-// //
-// // 	// TESTING STARTS HERE
-// // 	// Note: This can technically be one loop, but I am focusing on readability
-// //
-// // 	for _, tt := range tests {
-// //
-// // 		// load buffer
-// // 		var readBuffer, writerBuffer bytes.Buffer
-// // 		for _, mock := range tt {
-// // 			readBuffer.WriteString(mock.input + "\n")
-// // 		}
-// //
-// // 		//perform check here
-// // 		testname := fmt.Sprintf("name: %s", "Convert() test")
-// // 		fmt.Println(testname)
-// // 		t.Run(testname, func(t *testing.T) {
-// // 			convert(&readBuffer, &writerBuffer)
-// // 			checkOutput := bufio.NewScanner(&writerBuffer)
-// // 			checkOutput.Scan()
-// // 			checkOutput.Scan()
-// // 			for _, mock := range tt {
-// // 				if mock.output != checkOutput.Text() {
-// // 					t.Errorf("got .%s., wanted .%s.", checkOutput.Text(), mock.output)
-// // 					break
-// // 				}
-// // 				checkOutput.Scan()
-// // 			}
-// // 		})
-// // 	}
-// //
-// // }
-// //

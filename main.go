@@ -56,14 +56,14 @@ func convert(readFile io.Reader, writeFile io.Writer) {
 		block, text := splitLine(scanner.Text())
 		blockType := getBlockType(block)
 
-		if blockType == "ol" || blockType == "ul"{
+		if blockType == "ol" || blockType == "ul" {
 			startBlock = openTag("li")
 			endBlock = closeTag("li")
 		} else {
 			startBlock = openTag(blockType)
 			endBlock = closeTag(blockType)
 		}
-		
+
 		innerHtml = getInnerText(text)
 
 		// hangle open tag
@@ -76,8 +76,8 @@ func convert(readFile io.Reader, writeFile io.Writer) {
 		if lastType == "first" {
 			newEle = true
 
-		// }else if lastType != blockType && lastType != "first" {
-		}else if lastType != blockType && lastType == "ul" || lastType == "ol" {
+			// }else if lastType != blockType && lastType != "first" {
+		} else if lastType != blockType && lastType == "ul" || lastType == "ol" {
 			_, err = writer.WriteString(closeTag(lastType) + "\n")
 			check(err)
 			newEle = true
@@ -135,7 +135,6 @@ func convert(readFile io.Reader, writeFile io.Writer) {
 
 }
 
-
 // if lastType != blockType{
 // 	writer.WriteString(closeTag(lastType) + "\n")
 // 	lastType = "none"
@@ -166,7 +165,7 @@ func getStartBlockType(block string) string {
 
 	// switch block {
 	// case "li":
-		
+
 	return startBlock
 }
 
