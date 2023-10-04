@@ -22,6 +22,7 @@ func TestGetBlockType(t *testing.T) {
 		{"- this is an unordered list", "ul"},
 		{"--- this is a line break", "br"},
 	}
+	fmt.Println("\nTest TestGetBlockType")
 	for _, tt := range tests {
 		testname := fmt.Sprintf("input: %s", tt.input)
 		fmt.Println(testname)
@@ -38,6 +39,7 @@ func TestSplitLine(t *testing.T) {
 		{"- This has a bullet", "-", "This has a bullet"},
 		{"This has a paragraph", "", "This has a paragraph"},
 	}
+	fmt.Println("\nTest TestSplitLine")
 	for _, tt := range tests {
 		testname := fmt.Sprintf("input: %s", tt.inputString)
 		fmt.Println(testname)
@@ -60,6 +62,8 @@ func TestInnerText(t *testing.T) {
 		{"This has *italic* characters", "This has <em>italic</em> characters"},
 		{"This has **underlined** characters and *italic ones*", "This has <strong>underlined</strong> characters and <em>italic ones</em>"},
 	}
+	fmt.Println("\nTest TestInnerText")
+
 	for _, tt := range tests {
 		testname := fmt.Sprintf("input: %s", tt.inputString)
 		fmt.Println(testname)
@@ -71,6 +75,7 @@ func TestInnerText(t *testing.T) {
 		})
 	}
 }
+
 func TestOpenTag(t *testing.T) {
 	tests := []struct {
 		inputString    string
@@ -78,6 +83,7 @@ func TestOpenTag(t *testing.T) {
 	}{
 		{"a", "<a>"},
 	}
+	fmt.Println("\nTest TestOpenTag")
 	for _, tt := range tests {
 		testname := fmt.Sprintf("input: %s", tt.inputString)
 		fmt.Println(testname)
@@ -97,6 +103,7 @@ func TestCloseTag(t *testing.T) {
 	}{
 		{"a", "</a>"},
 	}
+	fmt.Println("\nTest TestOpenTag")
 	for _, tt := range tests {
 		testname := fmt.Sprintf("input: %s", tt.inputString)
 		fmt.Println(testname)
@@ -110,51 +117,142 @@ func TestCloseTag(t *testing.T) {
 }
 
 type convertTest struct {
-	inputFile [][]string
-	outputFile [][]string
+	caseName   string
+	inputFile  []string
+	outputFile []string
 }
-
 
 func TestConvert(t *testing.T) {
 
 	// Input and output are separate variables because the initial <html> tag will make the lines off
 
+	caseName := []string{
+		"1. Single block line",
+		// "2. Single paragraph line",
+		// "3. Single ordered list line",
+		// "4. Multiple block line",
+		// "5. Multiple block line with italics/bold",
+		// "6. Multiple block and paragraph line",
+		// "7. Multiple block and ordered list",
+		// "8. Multiple block, paragraph, and ordered list with italics and bold",
+	}
 	inputCases := [][]string{
-		{	
-			"# This is a single line", 
-			// "## **This** *is* a single line",
-		},	
+		// 1
+		{
+			"# This is a single block line",
+		},
+		// // 2
+		// {
+		// 	"This is a single paragraph line",
+		// },
+		// // 3
+		// {
+		// 	"1. This is the first element of a list",
+		// },
+		// // 4
+		// {
+		// 	"# This is the first line",
+		// 	"## This is the second line",
+		// },
+		// // 5
+		// {
+		// 	"# This is the *first* line",
+		// 	"## This is the **second** line",
+		// },
+		// // 6
+		// {
+		// 	"# This is the first line",
+		// 	"This is part of a paragraph",
+		// },
+		// // 7
+		// {
+		// 	"# This is the first line",
+		// 	"- This is part of a list",
+		// },
+		// // 8
+		// {
+		// 	"# This is the *first* line",
+		// 	"- This is part of a **list**",
+		// 	"This is part of a paragraph",
+		// },
 	}
 	expectedOutputs := [][]string{
-			{
+		{
+			// 1
 			"<html>",
-			"<h1>This is a single line</h1>",
-			// "<h2><strong>This</strong> <em>is</em> a single line</h2>",
+			"<h1>This is a single block line</h1>",
 			"</html>",
-			},
-		}
-	tests := []convertTest{{inputFile:inputCases, outputFile:expectedOutputs}}
-		
-				for i, tt := range tests {
+		}, // {
+		// // 2
+		// 	"<html>",
+		// 	"<p>This is a single line</p>",
+		// 	"</html>",
+		// },{
+		// // 3
+		// 	"<html>",
+		// 	"<ol>",
+		// 	"\t<li>This is a single line</li>",
+		// 	"</ol>",
+		// 	"</html>",
+		// },{
+		// // 4
+		// 	"<html>",
+		// 	"<h1>This is the first line</h1>",
+		// 	"<h2>This is the second line</h2>",
+		// 	"</html>",
+		// },{
+		// // 5
+		// 	"<html>",
+		// 	"<h1>This is the <strong>first</strong> line</h1>",
+		// 	"<h2>This is the <em>second</em> line</h2>",
+		// 	"</html>",
+		// },{
+		// // 6
+		// 	"<html>",
+		// 	"<h1>This is the first line</h1>",
+		// 	"<p> This is part of a paragraph</p>",
+		// 	"</html>",
+		// },{
+		// // 7
+		// 	"<html>",
+		// 	"<h1>This is the first line</h1>",
+		// 	"<ul>",
+		// 	"\t<li>This is part of a list</li>",
+		// 	"</ul>",
+		// 	"</html>",
+		// },{
+		// // 8
+		// 	"<html>",
+		// 	"<h1>This is the <strong>first</strong> line</h1>",
+		// 	"<ul>",
+		// 	"\t<li>This is part of a <em>list</em></li>",
+		// 	"</ul>",
+		// 	"<p>This is part of a paragraph</p>",
+		// 	"</html>",
+		// },
+	}
+	tests := []convertTest{}
+	for i := range caseName {
+		tests = append(tests, convertTest{caseName: caseName[i], inputFile: inputCases[i], outputFile: expectedOutputs[i]})
+	}
 
+	fmt.Println("\nTest: TestConvert")
+	for _, tt := range tests {
 		// load buffer
 		var readBuffer, writerBuffer bytes.Buffer
-		fmt.Println("Adding to readBuffer")
-		for _, line := range tt.inputFile[i] {
-			fmt.Println(line)
-			readBuffer.WriteString(line + "\n")
+		for _, line := range tt.inputFile {
+			readBuffer.WriteString(string(line) + "\n")
 		}
 
-		//perform check here
-		testname := fmt.Sprintf("name: %s", "Convert() test")
+		testname := fmt.Sprintf("Case: %s", tt.caseName)
 		fmt.Println(testname)
 		t.Run(testname, func(t *testing.T) {
 			convert(&readBuffer, &writerBuffer)
 			checkOutput := bufio.NewScanner(&writerBuffer)
-			for _, mock := range tt.outputFile[i] {
+			for j, mock := range tt.outputFile {
 				checkOutput.Scan()
-				if mock != checkOutput.Text() {
-					t.Errorf("got .%s., wanted .%s.", checkOutput.Text(), mock)
+				if string(mock) != checkOutput.Text() {
+					t.Errorf("%v) got .%s., wanted .%s.", j, checkOutput.Text(), string(mock))
 					break
 				}
 			}

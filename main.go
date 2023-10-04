@@ -86,16 +86,16 @@ func convert(readFile io.Reader, writeFile io.Writer) {
 		if newEle {
 			switch blockType {
 			case "ul":
-				fmt.Println("in switch")
+				// fmt.Println("in switch")
 				_, err = writer.WriteString(openTag(blockType) + "\n")
 				check(err)
 			case "ol":
-				fmt.Println("in switch")
+				// fmt.Println("in switch")
 				_, err = writer.WriteString(openTag(blockType) + "\n")
 				check(err)
 			// headers
 			default:
-				fmt.Println("in switch")
+				// fmt.Println("in switch")
 			}
 
 			check(err)
@@ -114,10 +114,10 @@ func convert(readFile io.Reader, writeFile io.Writer) {
 		// }
 		htmlLine := createLine(startBlock, innerHtml, endBlock)
 
-		fmt.Println("startBlock:." + startBlock + ".")
-		fmt.Println("innerHtml:." + innerHtml + ".")
-		fmt.Println("endBlock:." + endBlock + ".")
-		fmt.Println("htmlLine:." + htmlLine + ".")
+		// fmt.Println("startBlock:." + startBlock + ".")
+		// fmt.Println("innerHtml:." + innerHtml + ".")
+		// fmt.Println("endBlock:." + endBlock + ".")
+		// fmt.Println("htmlLine:." + htmlLine + ".")
 
 		_, err := writer.WriteString(htmlLine)
 		check(err)
