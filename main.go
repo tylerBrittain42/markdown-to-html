@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"github.com/tylerBrittain42/markdown-to-html/parser"
 )
 
 // stealing from gobyexample.com
@@ -53,18 +54,21 @@ func convert(readFile io.Reader, writeFile io.Writer) {
 
 		var innerHtml string
 
-		block, text := splitLine(scanner.Text())
-		blockType := getBlockType(block)
+		block, text := parser.SplitLine(scanner.Text())
+		blockType := parser.GetBlockType(block)
 
 		if blockType == "ol" || blockType == "ul" {
-			startBlock = openTag("li")
-			endBlock = closeTag("li")
+			startBlock = parser.OpenTag("li")
+			endBlock = parser.CloseTag("li")
+		} else if blockType == "" {
+			startBlock = parser.OpenTag("p")
+			endBlock = parser.CloseTag("p")
 		} else {
-			startBlock = openTag(blockType)
-			endBlock = closeTag(blockType)
+			startBlock = parser.OpenTag(blockType)
+			endBlock = parser.CloseTag(blockType)
 		}
 
-		innerHtml = getInnerText(text)
+		innerHtml = parser.GetInnerText(text)
 
 		// hangle open tag
 		// handle close tag
@@ -78,7 +82,7 @@ func convert(readFile io.Reader, writeFile io.Writer) {
 
 			// }else if lastType != blockType && lastType != "first" {
 		} else if lastType != blockType && lastType == "ul" || lastType == "ol" {
-			_, err = writer.WriteString(closeTag(lastType) + "\n")
+			_, err = writer.WriteString(parser.CloseTag(lastType) + "\n")
 			check(err)
 			newEle = true
 		}
@@ -87,11 +91,11 @@ func convert(readFile io.Reader, writeFile io.Writer) {
 			switch blockType {
 			case "ul":
 				// fmt.Println("in switch")
-				_, err = writer.WriteString(openTag(blockType) + "\n")
+				_, err = writer.WriteString(parser.OpenTag(blockType) + "\n")
 				check(err)
 			case "ol":
 				// fmt.Println("in switch")
-				_, err = writer.WriteString(openTag(blockType) + "\n")
+				_, err = writer.WriteString(parser.OpenTag(blockType) + "\n")
 				check(err)
 			// headers
 			default:
@@ -105,11 +109,11 @@ func convert(readFile io.Reader, writeFile io.Writer) {
 		// if lastType == "" {
 		// 	// Normal type
 		// 	if blockType != "" && blockType != "ol" && blockType != "ul" {
-		// 		startBlock = openTag(blockType)
-		// 		endBlock = closeTag(blockType)
+		// 		startBlock = parser.OpenTag(blockType)
+		// 		endBlock = parser.CloseTag(blockType)
 		// 	} else if blockType == "ol" {
-		// 		startBlock = openTag(blockType)
-		// 		endBlock = closeTag(blockType)
+		// 		startBlock = parser.OpenTag(blockType)
+		// 		endBlock = parser.CloseTag(blockType)
 		//
 		// }
 		htmlLine := createLine(startBlock, innerHtml, endBlock)
@@ -136,7 +140,7 @@ func convert(readFile io.Reader, writeFile io.Writer) {
 }
 
 // if lastType != blockType{
-// 	writer.WriteString(closeTag(lastType) + "\n")
+// 	writer.WriteString(parser.CloseTag(lastType) + "\n")
 // 	lastType = "none"
 // }
 //
@@ -146,8 +150,8 @@ func convert(readFile io.Reader, writeFile io.Writer) {
 // 	lastType = blockType
 // }
 // if blockType != "" && blockType != "li" && blockType != "ul" {
-// startBlock = openTag(blockType)
-// endBlock = closeTag(blockType)
+// startBlock = parser.OpenTag(blockType)
+// endBlock = parser.CloseTag(blockType)
 // }
 
 func createLine(open string, text string, close string) string {
@@ -169,7 +173,7 @@ func getStartBlockType(block string) string {
 	return startBlock
 }
 
-//	func getBlockType(foo string) string {
+//	func parser.getBlockType(foo string) string {
 //		return ""
 //	}
 func handleEndBlockType(foo string) string {
@@ -188,21 +192,21 @@ func handleEndBlockType(foo string) string {
 // 	isFirst := true
 //
 // 	for scanner.Scan() {
-// 		potentBlock := getBlockType(strings.Split(scanner.Text(), " ")[0])
+// 		potentBlock := parser.getBlockType(strings.Split(scanner.Text(), " ")[0])
 // 		if isFirst  && potentBlock == ""{
-// 			_, err := writer.WriteString(openTag("p"))
+// 			_, err := writer.WriteString(parser.OpenTag("p"))
 // 			check(err)
 // 			wasClosed = true
 // 		} else if isFirst && potentBlock != "" {
 // 		} else if potentBlock == "" {
 // 			if !isPara {
-// 				_, err := writer.WriteString("\n" + openTag("p"))
+// 				_, err := writer.WriteString("\n" + parser.OpenTag("p"))
 // 				check(err)
 // 				isPara = true
 // 				wasClosed = false
 // 			}
 // 		} else if potentBlock != "" && isPara {
-// 			_, err := writer.WriteString(closeTag("p") + "\n")
+// 			_, err := writer.WriteString(parser.CloseTag("p") + "\n")
 // 			check(err)
 // 			wasClosed = true
 // 		} else {
@@ -217,7 +221,7 @@ func handleEndBlockType(foo string) string {
 // 		fmt.Println("HTML:." + htmlLine + ".")
 // 	}
 // 	if !wasClosed {
-// 		_, err := writer.WriteString(closeTag("p") + "\n")
+// 		_, err := writer.WriteString(parser.CloseTag("p") + "\n")
 // 		check(err)
 // 	} else {
 // 		_, err := writer.WriteString("\n")

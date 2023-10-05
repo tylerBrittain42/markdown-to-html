@@ -1,13 +1,13 @@
-package main
+package parser
 
 import (
 	"strings"
 )
 
-func splitLine(line string) (block string, text string) {
+func SplitLine(line string) (block string, text string) {
 
 	split := strings.SplitN(line, " ", 2)
-	if getBlockType(split[0]) != "" {
+	if GetBlockType(split[0]) != "" {
 		block = split[0]
 		text = split[1]
 	} else {
@@ -18,7 +18,7 @@ func splitLine(line string) (block string, text string) {
 	return block, text
 }
 
-func getBlockType(token string) string {
+func GetBlockType(token string) string {
 
 	blockMarkSymbols := map[string]string{
 		"#":      "h1",
@@ -45,7 +45,7 @@ func getBlockType(token string) string {
 }
 
 // Assume block type has been removed
-func getInnerText(line string) string {
+func GetInnerText(line string) string {
 	var parsed strings.Builder
 
 	bold := false
@@ -56,16 +56,16 @@ func getInnerText(line string) string {
 			bold = !bold
 			i++
 			if bold {
-				parsed.WriteString(openTag("strong"))
+				parsed.WriteString(OpenTag("strong"))
 			} else {
-				parsed.WriteString(closeTag("strong"))
+				parsed.WriteString(CloseTag("strong"))
 			}
 		} else if line[i] == '*' {
 			italic = !italic
 			if italic {
-				parsed.WriteString(openTag("em"))
+				parsed.WriteString(OpenTag("em"))
 			} else {
-				parsed.WriteString(closeTag("em"))
+				parsed.WriteString(CloseTag("em"))
 			}
 		} else {
 			parsed.WriteByte(line[i])
@@ -73,10 +73,15 @@ func getInnerText(line string) string {
 	}
 	return parsed.String()
 }
-func openTag(tag string) string {
-	return "<" + tag + ">"
+func OpenTag(tagVal string) string {
+	tag := ""
+	if tagVal == "li" {
+		tag += "\t"
+	}
+	tag += "<" + tagVal + ">"
+	return tag
 }
 
-func closeTag(tag string) string {
+func CloseTag(tag string) string {
 	return "</" + tag + ">"
 }

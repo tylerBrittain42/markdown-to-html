@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"testing"
+	"github.com/tylerBrittain42/markdown-to-html/parser"
 )
 
 func TestGetBlockType(t *testing.T) {
@@ -44,7 +45,7 @@ func TestSplitLine(t *testing.T) {
 		testname := fmt.Sprintf("input: %s", tt.inputString)
 		fmt.Println(testname)
 		t.Run(testname, func(t *testing.T) {
-			actualBlock, actualBody := splitLine(tt.inputString)
+			actualBlock, actualBody := parser.SplitLine(tt.inputString)
 			if actualBlock != tt.expectedBlock || actualBody != tt.expectedBody {
 				t.Errorf("got .%s. .%s., wanted .%s. .%s.", actualBlock, actualBody, tt.expectedBlock, tt.expectedBody)
 			}
@@ -68,7 +69,7 @@ func TestInnerText(t *testing.T) {
 		testname := fmt.Sprintf("input: %s", tt.inputString)
 		fmt.Println(testname)
 		t.Run(testname, func(t *testing.T) {
-			ans := getInnerText(tt.inputString)
+			ans := parser.GetInnerText(tt.inputString)
 			if ans != tt.expectedString {
 				t.Errorf("got .%s., wanted .%s.", ans, tt.expectedString)
 			}
@@ -88,7 +89,7 @@ func TestOpenTag(t *testing.T) {
 		testname := fmt.Sprintf("input: %s", tt.inputString)
 		fmt.Println(testname)
 		t.Run(testname, func(t *testing.T) {
-			ans := openTag(tt.inputString)
+			ans := parser.OpenTag(tt.inputString)
 			if ans != tt.expectedString {
 				t.Errorf("got .%s., wanted .%s.", ans, tt.expectedString)
 			}
@@ -108,7 +109,7 @@ func TestCloseTag(t *testing.T) {
 		testname := fmt.Sprintf("input: %s", tt.inputString)
 		fmt.Println(testname)
 		t.Run(testname, func(t *testing.T) {
-			ans := closeTag(tt.inputString)
+			ans := parser.CloseTag(tt.inputString)
 			if ans != tt.expectedString {
 				t.Errorf("got .%s., wanted .%s.", ans, tt.expectedString)
 			}
@@ -182,7 +183,7 @@ func createTestCases() []convertTest{
 		}, {
 		// 2
 			"<html>",
-			"<p>This is a single line</p>",
+			"<p>This is a single paragraph line</p>",
 			"</html>",
 		},{
 		// 3
