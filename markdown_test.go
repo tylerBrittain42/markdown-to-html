@@ -189,7 +189,7 @@ func createTestCases() []convertTest{
 		// 3
 			"<html>",
 			"<ol>",
-			"\t<li>This is a single line</li>",
+			"\t<li>This is the first element of a list</li>",
 			"</ol>",
 			"</html>",
 		},{
@@ -201,14 +201,14 @@ func createTestCases() []convertTest{
 		},{
 		// 5
 			"<html>",
-			"<h1>This is the <strong>first</strong> line</h1>",
-			"<h2>This is the <em>second</em> line</h2>",
+			"<h1>This is the <em>first</em> line</h1>",
+			"<h2>This is the <strong>second</strong> line</h2>",
 			"</html>",
 		},{
 		// 6
 			"<html>",
 			"<h1>This is the first line</h1>",
-			"<p> This is part of a paragraph</p>",
+			"<p>This is part of a paragraph</p>",
 			"</html>",
 		},{
 		// 7
@@ -221,9 +221,9 @@ func createTestCases() []convertTest{
 		},{
 		// 8
 			"<html>",
-			"<h1>This is the <strong>first</strong> line</h1>",
+			"<h1>This is the <em>first</em> line</h1>",
 			"<ul>",
-			"\t<li>This is part of a <em>list</em></li>",
+			"\t<li>This is part of a <strong>list</strong></li>",
 			"</ul>",
 			"<p>This is part of a paragraph</p>",
 			"</html>",
