@@ -244,6 +244,7 @@ func TestConvert(t *testing.T) {
 
 	fmt.Println("\nTest: TestConvert")
 	for _, tt := range tests {
+		isCorrect := true
 		// load buffer
 		var readBuffer, writerBuffer bytes.Buffer
 		for _, line := range tt.inputFile {
@@ -259,10 +260,27 @@ func TestConvert(t *testing.T) {
 				checkOutput.Scan()
 				if string(mock) != checkOutput.Text() {
 					t.Errorf("%v) got .%s., wanted .%s.", j, checkOutput.Text(), string(mock))
+					isCorrect = false
 					break
 				}
 			}
 		})
+		// TODO: FIGURE OUTo WHY THE BUFFER NEEDS TO BE READ AGAIN
+		// Look into Tee reader
+		if !isCorrect {
+			for _, line := range tt.inputFile {
+				readBuffer.WriteString(string(line) + "\n")
+			}
+		
+			convert(&readBuffer, &writerBuffer)
+			convertOutput := bufio.NewScanner(&writerBuffer)
+			fmt.Println("BEGIN FAILED OUTPUT")
+			for convertOutput.Scan() {
+				fmt.Println(convertOutput.Text())
+			}
+			fmt.Println("END FAILED OUTPUT")
+			isCorrect = true
+		}
 	}
 
 }
