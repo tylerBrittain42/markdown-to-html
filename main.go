@@ -3,10 +3,10 @@ package main
 import (
 	"bufio"
 	// "fmt"
+	"github.com/tylerBrittain42/markdown-to-html/parser"
 	"io"
 	"os"
 	"strings"
-	"github.com/tylerBrittain42/markdown-to-html/parser"
 )
 
 // stealing from gobyexample.com
@@ -24,15 +24,39 @@ func main() {
 	check(err)
 	defer readFile.Close()
 
-	writeFile, err := os.Create(name + ".html")
+	writeFileTemp, err := os.Create(name + "_temp.html")
 	check(err)
-	defer writeFile.Close()
+	defer writeFileTemp.Close()
 
-	convert(readFile, writeFile)
+	writeFileFinal, err := os.Create(name + "_.html")
+	check(err)
+	defer writeFileFinal.Close()
+
+	firstPass(readFile, writeFileTemp)
+	secondPass(writeFileTemp, writeFileFinal)
 
 }
 
-func convert(readFile io.Reader, writeFile io.Writer) {
+// Second pass through to remove empty paragraph tags
+func secondPass(readFile io.Reader, writeFile io.Writer) {
+
+	scanner := bufio.NewScanner(readFile)
+	writer := bufio.NewWriter(writeFile)
+
+	for scanner.Scan() {
+		if scanner.Text() != "<p></p>" {
+			_, err := writer.WriteString(scanner.Text() + "\n")
+			check(err)
+		}
+	}
+
+	err := writer.Flush()
+	check(err)
+
+
+}
+
+func firstPass(readFile io.Reader, writeFile io.Writer) {
 
 	scanner := bufio.NewScanner(readFile)
 	writer := bufio.NewWriter(writeFile)
@@ -66,18 +90,15 @@ func convert(readFile io.Reader, writeFile io.Writer) {
 			endBlock = parser.CloseTag(blockType)
 		}
 
-
-		if lastType != blockType && lastType == "ul" || lastType == "ol" {
+		if isOpenList && lastType != blockType && (lastType == "ul" || lastType == "ol") {
 			_, err = writer.WriteString(parser.CloseTag(lastType) + "\n")
 			check(err)
 			isOpenList = false
-		
-		}
 
-		if blockType == "ol" || blockType == "ul" {
-				_, err = writer.WriteString(parser.OpenTag(blockType) + "\n")
-				check(err)
-				isOpenList = true
+		} else if !isOpenList && (blockType == "ol" || blockType == "ul") {
+			_, err = writer.WriteString(parser.OpenTag(blockType) + "\n")
+			check(err)
+			isOpenList = true
 		}
 
 		htmlLine := createLine(startBlock, innerHtml, endBlock)
@@ -89,7 +110,7 @@ func convert(readFile io.Reader, writeFile io.Writer) {
 		lastType = blockType
 
 	}
-	
+
 	if isOpenList {
 		_, err = writer.WriteString(parser.CloseTag(lastType) + "\n")
 		check(err)
@@ -110,7 +131,6 @@ func createLine(open string, text string, close string) string {
 
 	return htmlBuilder.String()
 }
-
 
 func parseFilename(name string) (string, string) {
 	parts := strings.Split(name, ".")
