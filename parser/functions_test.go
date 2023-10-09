@@ -1,10 +1,9 @@
-package main
+package parser
 
 import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"github.com/tylerBrittain42/markdown-to-html/parser"
 	"testing"
 )
 
@@ -45,7 +44,7 @@ func TestSplitLine(t *testing.T) {
 		testname := fmt.Sprintf("input: %s", tt.inputString)
 		fmt.Println(testname)
 		t.Run(testname, func(t *testing.T) {
-			actualBlock, actualBody := parser.SplitLine(tt.inputString)
+			actualBlock, actualBody := SplitLine(tt.inputString)
 			if actualBlock != tt.expectedBlock || actualBody != tt.expectedBody {
 				t.Errorf("got .%s. .%s., wanted .%s. .%s.", actualBlock, actualBody, tt.expectedBlock, tt.expectedBody)
 			}
@@ -69,7 +68,7 @@ func TestInnerText(t *testing.T) {
 		testname := fmt.Sprintf("input: %s", tt.inputString)
 		fmt.Println(testname)
 		t.Run(testname, func(t *testing.T) {
-			ans := parser.GetInnerText(tt.inputString)
+			ans := GetInnerText(tt.inputString)
 			if ans != tt.expectedString {
 				t.Errorf("got .%s., wanted .%s.", ans, tt.expectedString)
 			}
@@ -89,7 +88,7 @@ func TestOpenTag(t *testing.T) {
 		testname := fmt.Sprintf("input: %s", tt.inputString)
 		fmt.Println(testname)
 		t.Run(testname, func(t *testing.T) {
-			ans := parser.OpenTag(tt.inputString)
+			ans := OpenTag(tt.inputString)
 			if ans != tt.expectedString {
 				t.Errorf("got .%s., wanted .%s.", ans, tt.expectedString)
 			}
@@ -109,7 +108,7 @@ func TestCloseTag(t *testing.T) {
 		testname := fmt.Sprintf("input: %s", tt.inputString)
 		fmt.Println(testname)
 		t.Run(testname, func(t *testing.T) {
-			ans := parser.CloseTag(tt.inputString)
+			ans := CloseTag(tt.inputString)
 			if ans != tt.expectedString {
 				t.Errorf("got .%s., wanted .%s.", ans, tt.expectedString)
 			}
@@ -305,7 +304,7 @@ func TestFirstPass(t *testing.T) {
 		// }
 		fmt.Println(testname)
 		t.Run(testname, func(t *testing.T) {
-			firstPass(&readBuffer, &writerBuffer)
+			FirstPass(&readBuffer, &writerBuffer)
 			checkOutput := bufio.NewScanner(&writerBuffer)
 			for j, mock := range tt.outputFile {
 				checkOutput.Scan()
@@ -323,7 +322,7 @@ func TestFirstPass(t *testing.T) {
 				readBuffer.WriteString(string(line) + "\n")
 			}
 
-			firstPass(&readBuffer, &writerBuffer)
+			FirstPass(&readBuffer, &writerBuffer)
 			firstPassOutput := bufio.NewScanner(&writerBuffer)
 			fmt.Println("BEGIN FAILED OUTPUT")
 			for firstPassOutput.Scan() {
@@ -336,7 +335,13 @@ func TestFirstPass(t *testing.T) {
 
 }
 
-func createSecondPassCases() []firstPassTest {
+type secondPassTest struct {
+	caseName   string
+	inputFile  []string
+	outputFile []string
+}
+
+func createSecondPassCases() []secondPassTest {
 	caseName := []string{
 		"1. No paragraphs at all",
 		"2. No empty paragraphs(nonempty paragraps exist)",
@@ -426,9 +431,9 @@ func createSecondPassCases() []firstPassTest {
 			"</html>",
 		},
 	}
-	tests := []firstPassTest{}
+	tests := []secondPassTest{}
 	for i := range caseName {
-		tests = append(tests, firstPassTest{caseName: caseName[i], inputFile: inputCases[i], outputFile: expectedOutputs[i]})
+		tests = append(tests, secondPassTest{caseName: caseName[i], inputFile: inputCases[i], outputFile: expectedOutputs[i]})
 	}
 	return tests
 }
@@ -454,7 +459,7 @@ func TestSecondPass(t *testing.T) {
 		// }
 		fmt.Println(testname)
 		t.Run(testname, func(t *testing.T) {
-			secondPass(&readBuffer, &writerBuffer)
+			SecondPass(&readBuffer, &writerBuffer)
 			checkOutput := bufio.NewScanner(&writerBuffer)
 			for j, mock := range tt.outputFile {
 				checkOutput.Scan()
@@ -472,7 +477,7 @@ func TestSecondPass(t *testing.T) {
 				readBuffer.WriteString(string(line) + "\n")
 			}
 
-			firstPass(&readBuffer, &writerBuffer)
+			FirstPass(&readBuffer, &writerBuffer)
 			firstPassOutput := bufio.NewScanner(&writerBuffer)
 			fmt.Println("BEGIN FAILED OUTPUT")
 			for firstPassOutput.Scan() {
@@ -485,60 +490,105 @@ func TestSecondPass(t *testing.T) {
 
 }
 
+type convertTest struct {
+	caseName   string
+	inputFile  []string
+	outputFile []string
+}
 
+func createConvertCase() convertTest {
+	caseName := "Only case"
+	inputCase := []string{
+		"# Cookies or Ice Cream",
+		"by *Tyler*",
+		"## Introduction",
+		"The topic of the  **best** dessert food is one that has never had a definitive answer. This is often because there are too many factors of taste that must be accounted for.",
+		"",
+		"These factors include the following:",
+		"- taste",
+		"- temperature",
+		"- price",
+		"",
+		"Only by considering each of these factors can we truly determine the ultimate dessert.",
+		"",
+		"### Conclusion",
+		"The rankings for best desserts are as follows:",
+		"1. Cookies",
+		"1. Ice Cream",
+		"Thank you",
+			}
+	
+	expectedOutput := []string{
+		"<html>",
+		"<h1>Cookies or Ice Cream</h1>",
+		"<p>by <em>Tyler</em></p>",
+		"<h2>Introduction</h2>",
+		"<p>The topic of the  <strong>best</strong> dessert food is one that has never had a definitive answer. This is often because there are too many factors of taste that must be accounted for.</p>",
+		"<p>These factors include the following:</p>",
+		"<ul>",
+		"\t<li>taste</li>",
+		"\t<li>temperature</li>",
+		"\t<li>price</li>",
+		"</ul>",
+		"<p>Only by considering each of these factors can we truly determine the ultimate dessert.</p>",
+		"<h3>Conclusion</h3>",
+		"<p>The rankings for best desserts are as follows:</p>",
+		"<ol>",
+		"\t<li>Cookies</li>",
+		"\t<li>Ice Cream</li>",
+		"</ol>",
+		"<p>Thank you</p>",
+		"</html>",
+	}
+	test := convertTest{caseName: caseName, inputFile: inputCase, outputFile: expectedOutput}
+	return test
+}
 
-// func TestConvertDocument(t *testing.T) {
-//
-// 	inputFile := "/test/final_input.md"
-// 	correctOutputFile := "/test/final_output.html"
-// 	convertOutputFile := "/test/test_output.html"
-//
-// 	fmt.Println("Test: TestConvert")
-// 	for _, tt := range tests {
-// 		isCorrect := true
-// 		// load buffer
-// 		var readBuffer, writerBuffer bytes.Buffer
-// 		for _, line := range tt.inputFile {
-// 			readBuffer.WriteString(string(line) + "\n")
-// 		}
-//
-// 		testname := fmt.Sprintf("Case: %s", tt.caseName)
-// 		fmt.Println(testname)
-// 		t.Run(testname, func(t *testing.T) {
-// 			convert(&readBuffer, &writerBuffer)
-// 			checkOutput := bufio.NewScanner(&writerBuffer)
-// 			for j, mock := range tt.outputFile {
-// 				checkOutput.Scan()
-// 				if string(mock) != checkOutput.Text() {
-// 					t.Errorf("%v) got .%s., wanted .%s.", j, checkOutput.Text(), string(mock))
-// 					isCorrect = false
-// 					break
-// 				}
-// 			}
-// 		}
-//
-// 	}
-// }
-// func TestBuildLine(t *testing.T) {
-// 	tests := []struct {
-// 		inputString    string
-// 		expectedString string
-// 	}{
-// 		{"# This is a single line", "<h1>This is a single line</h1>"},
-// 		{"## This is a single line", "<h2>This is a single line</h2>"},
-// 		{"### This has **underlined** characters", "<h3>This has <strong>underlined</strong> characters</h3>"},
-// 		{"## This has **underlined** characters and *italic ones*", "<h2>This has <strong>underlined</strong> characters and <em>italic ones</em></h2>"},
-// 	}
-// 	for _, tt := range tests {
-// 		testname := fmt.Sprintf("input: %s", tt.inputString)
-// 		fmt.Println(testname)
-// 		t.Run(testname, func(t *testing.T) {
-// 			ans := buildLine(tt.inputString)
-// 			if ans != tt.expectedString {
-// 				t.Errorf("got %s, wanted %s", ans, tt.expectedString)
-// 			}
-// 		})
-// 	}
-// 	fmt.Println()
-// }
-//
+func TestConvert(t *testing.T) {
+
+	// Input and output are separate variables because the initial <html> tag will make the lines off
+
+	test := createConvertCase()
+
+	fmt.Println("\nTest: TestConvert")
+
+	isCorrect := true
+	// load buffer
+	var readBuffer, writerBuffer bytes.Buffer
+	for _, line := range test.inputFile {
+		readBuffer.WriteString(string(line) + "\n")
+	}
+
+	testname := fmt.Sprintf("Case: %s", test.caseName)
+	
+	fmt.Println(testname)
+	t.Run(testname, func(t *testing.T) {
+		Convert(&readBuffer, &writerBuffer)
+		checkOutput := bufio.NewScanner(&writerBuffer)
+		for j, mock := range test.outputFile {
+			checkOutput.Scan()
+			if string(mock) != checkOutput.Text() {
+				t.Errorf("%v) got .%s., wanted .%s.", j, checkOutput.Text(), string(mock))
+				isCorrect = false
+				break
+			}
+		}
+	})
+	// TODO: FIGURE OUTo WHY THE BUFFER NEEDS TO BE READ AGAIN
+	// Look into Tee reader
+	if !isCorrect {
+		for _, line := range test.inputFile {
+			readBuffer.WriteString(string(line) + "\n")
+		}
+
+		FirstPass(&readBuffer, &writerBuffer)
+		firstPassOutput := bufio.NewScanner(&writerBuffer)
+		fmt.Println("BEGIN FAILED OUTPUT")
+		for firstPassOutput.Scan() {
+			fmt.Println(firstPassOutput.Text())
+		}
+		isCorrect = true
+		fmt.Println("END FAILED OUTPUT")
+	}
+
+}
