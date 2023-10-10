@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"io"
 	// "os"
-	"strings"
 	"bytes"
+	"strings"
 )
 
 func Convert(readFile io.Reader, writeFileFinal io.Writer) {
@@ -30,7 +30,6 @@ func SecondPass(readFile io.Reader, writeFile io.Writer) {
 	err := writer.Flush()
 	check(err)
 
-
 }
 
 func FirstPass(readFile io.Reader, writeFile io.Writer) {
@@ -46,7 +45,7 @@ func FirstPass(readFile io.Reader, writeFile io.Writer) {
 	// newEle is how we determine if we need outer tags in the case of ol and ul
 	isOpenList := false
 
-	_, err := writer.WriteString("<html>\n")
+	_, err := writer.WriteString("<html>\n<body>\n")
 	check(err)
 
 	for scanner.Scan() {
@@ -92,7 +91,7 @@ func FirstPass(readFile io.Reader, writeFile io.Writer) {
 		_, err = writer.WriteString(CloseTag(lastType) + "\n")
 		check(err)
 	}
-	_, err = writer.WriteString("</html>\n")
+	_, err = writer.WriteString("</body>\n</html>\n")
 	check(err)
 	err = writer.Flush()
 	check(err)

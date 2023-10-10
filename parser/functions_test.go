@@ -199,59 +199,76 @@ func createFirstPassCases() []firstPassTest {
 		{
 			// 1
 			"<html>",
+			"<body>",
 			"<h1>This is a single block line</h1>",
+			"</body>",
 			"</html>",
 		}, {
 			// 2
 			"<html>",
+			"<body>",
 			"<p>This is a single paragraph line</p>",
+			"</body>",
 			"</html>",
 		}, {
 			// 3
 			"<html>",
+			"<body>",
 			"<ol>",
 			"\t<li>This is the first element of a list</li>",
 			"\t<li>This is the second element of a list</li>",
 			"</ol>",
+			"</body>",
 			"</html>",
 		}, {
 			// 4
 			"<html>",
+			"<body>",
 			"<h1>This is the first line</h1>",
 			"<h2>This is the second line</h2>",
+			"</body>",
 			"</html>",
 		}, {
 			// 5
 			"<html>",
+			"<body>",
 			"<h1>This is the <em>first</em> line</h1>",
 			"<h2>This is the <strong>second</strong> line</h2>",
+			"</body>",
 			"</html>",
 		}, {
 			// 6
 			"<html>",
+			"<body>",
 			"<h1>This is the first line</h1>",
 			"<p>This is part of a paragraph</p>",
+			"</body>",
 			"</html>",
 		}, {
 			// 7
 			"<html>",
+			"<body>",
 			"<h1>This is the first line</h1>",
 			"<ul>",
 			"\t<li>This is part of a list</li>",
 			"\t<li>This is part of a list too</li>",
 			"</ul>",
+			"</body>",
 			"</html>",
 		}, {
 			// 8
 			"<html>",
+			"<body>",
 			"<h1>This is the <em>first</em> line</h1>",
 			"<ul>",
 			"\t<li>This is part of a <strong>list</strong></li>",
 			"</ul>",
 			"<p>This is part of a paragraph</p>",
+			"</body>",
 			"</html>",
 		}, {
 			"<html>",
+			"<body>",
 			"<h1>Cookies or Ice Cream</h1>",
 			"<p>by <em>Tyler</em></p>",
 			"<h2>Introduction</h2>",
@@ -273,6 +290,7 @@ func createFirstPassCases() []firstPassTest {
 			"\t<li>Ice Cream</li>",
 			"</ol>",
 			"<p>Thank you</p>",
+			"</body>",
 			"</html>",
 		},
 	}
@@ -352,21 +370,28 @@ func createSecondPassCases() []secondPassTest {
 		{
 			// 1
 			"<html>",
+			"<body>",
 			"<h1>This is a single block line</h1>",
+			"</body>",
 			"</html>",
 		}, {
 			// 2
 			"<html>",
+			"<body>",
 			"<p>This is a single paragraph line</p>",
+			"</body>",
 			"</html>",
 		}, {
 			// 3
 			"<html>",
+			"<body>",
 			"<p></p>",
+			"</body>",
 			"</html>",
 		}, {
 			// 4
 			"<html>",
+			"<body>",
 			"<h1>Cookies or Ice Cream</h1>",
 			"<p>by <em>Tyler</em></p>",
 			"<h2>Introduction</h2>",
@@ -388,28 +413,36 @@ func createSecondPassCases() []secondPassTest {
 			"\t<li>Ice Cream</li>",
 			"</ol>",
 			"<p>Thank you</p>",
+			"</body>",
 			"</html>",
 		},
 	}
-	
+
 	expectedOutputs := [][]string{
 		{
 			// 1
 			"<html>",
+			"<body>",
 			"<h1>This is a single block line</h1>",
+			"</body>",
 			"</html>",
 		}, {
 			// 2
 			"<html>",
+			"<body>",
 			"<p>This is a single paragraph line</p>",
+			"</body>",
 			"</html>",
 		}, {
 			// 3
 			"<html>",
+			"<body>",
+			"</body>",
 			"</html>",
 		}, {
 			// 4
 			"<html>",
+			"<body>",
 			"<h1>Cookies or Ice Cream</h1>",
 			"<p>by <em>Tyler</em></p>",
 			"<h2>Introduction</h2>",
@@ -428,6 +461,7 @@ func createSecondPassCases() []secondPassTest {
 			"\t<li>Ice Cream</li>",
 			"</ol>",
 			"<p>Thank you</p>",
+			"</body>",
 			"</html>",
 		},
 	}
@@ -516,10 +550,11 @@ func createConvertCase() convertTest {
 		"1. Cookies",
 		"1. Ice Cream",
 		"Thank you",
-			}
-	
+	}
+
 	expectedOutput := []string{
 		"<html>",
+		"<body>",
 		"<h1>Cookies or Ice Cream</h1>",
 		"<p>by <em>Tyler</em></p>",
 		"<h2>Introduction</h2>",
@@ -538,6 +573,7 @@ func createConvertCase() convertTest {
 		"\t<li>Ice Cream</li>",
 		"</ol>",
 		"<p>Thank you</p>",
+		"</body>",
 		"</html>",
 	}
 	test := convertTest{caseName: caseName, inputFile: inputCase, outputFile: expectedOutput}
@@ -560,7 +596,7 @@ func TestConvert(t *testing.T) {
 	}
 
 	testname := fmt.Sprintf("Case: %s", test.caseName)
-	
+
 	fmt.Println(testname)
 	t.Run(testname, func(t *testing.T) {
 		Convert(&readBuffer, &writerBuffer)
