@@ -422,46 +422,46 @@ func createSecondPassCases() []secondPassTest {
 		{
 			// 1
 			"<html>",
-			"<body>",
-			"<h1>This is a single block line</h1>",
-			"</body>",
+			"\t<body>",
+			"\t\t<h1>This is a single block line</h1>",
+			"\t</body>",
 			"</html>",
 		}, {
 			// 2
 			"<html>",
-			"<body>",
-			"<p>This is a single paragraph line</p>",
-			"</body>",
+			"\t<body>",
+			"\t\t<p>This is a single paragraph line</p>",
+			"\t</body>",
 			"</html>",
 		}, {
 			// 3
 			"<html>",
-			"<body>",
-			"</body>",
+			"\t<body>",
+			"\t</body>",
 			"</html>",
 		}, {
 			// 4
 			"<html>",
-			"<body>",
-			"<h1>Cookies or Ice Cream</h1>",
-			"<p>by <em>Tyler</em></p>",
-			"<h2>Introduction</h2>",
-			"<p>The topic of the  <strong>best</strong> dessert food is one that has never had a definitive answer. This is often because there are too many factors of taste that must be accounted for.</p>",
-			"<p>These factors include the following:</p>",
-			"<ul>",
-			"\t<li>taste</li>",
-			"\t<li>temperature</li>",
-			"\t<li>price</li>",
-			"</ul>",
-			"<p>Only by considering each of these factors can we truly determine the ultimate dessert.</p>",
-			"<h3>Conclusion</h3>",
-			"<p>The rankings for best desserts are as follows:</p>",
-			"<ol>",
-			"\t<li>Cookies</li>",
-			"\t<li>Ice Cream</li>",
-			"</ol>",
-			"<p>Thank you</p>",
-			"</body>",
+			"\t<body>",
+			"\t\t<h1>Cookies or Ice Cream</h1>",
+			"\t\t<p>by <em>Tyler</em></p>",
+			"\t\t<h2>Introduction</h2>",
+			"\t\t<p>The topic of the  <strong>best</strong> dessert food is one that has never had a definitive answer. This is often because there are too many factors of taste that must be accounted for.</p>",
+			"\t\t<p>These factors include the following:</p>",
+			"\t\t<ul>",
+			"\t\t\t<li>taste</li>",
+			"\t\t\t<li>temperature</li>",
+			"\t\t\t<li>price</li>",
+			"\t\t</ul>",
+			"\t\t<p>Only by considering each of these factors can we truly determine the ultimate dessert.</p>",
+			"\t\t<h3>Conclusion</h3>",
+			"\t\t<p>The rankings for best desserts are as follows:</p>",
+			"\t\t<ol>",
+			"\t\t\t<li>Cookies</li>",
+			"\t\t\t<li>Ice Cream</li>",
+			"\t\t</ol>",
+			"\t\t<p>Thank you</p>",
+			"\t</body>",
 			"</html>",
 		},
 	}
@@ -507,18 +507,21 @@ func TestSecondPass(t *testing.T) {
 		// TODO: FIGURE OUTo WHY THE BUFFER NEEDS TO BE READ AGAIN
 		// Look into Tee reader
 		if !isCorrect {
+			fmt.Println("START DEBUG")
+			var rb2, wb2 bytes.Buffer
 			for _, line := range tt.inputFile {
-				readBuffer.WriteString(string(line) + "\n")
+				rb2.WriteString(string(line) + "\n")
 			}
 
-			FirstPass(&readBuffer, &writerBuffer)
-			firstPassOutput := bufio.NewScanner(&writerBuffer)
+			SecondPass(&rb2, &wb2)
+			firstPassOutput := bufio.NewScanner(&wb2)
 			fmt.Println("BEGIN FAILED OUTPUT")
 			for firstPassOutput.Scan() {
 				fmt.Println(firstPassOutput.Text())
 			}
 			isCorrect = true
 			fmt.Println("END FAILED OUTPUT")
+			fmt.Println("End DEBUG")
 		}
 	}
 
@@ -554,26 +557,26 @@ func createConvertCase() convertTest {
 
 	expectedOutput := []string{
 		"<html>",
-		"<body>",
-		"<h1>Cookies or Ice Cream</h1>",
-		"<p>by <em>Tyler</em></p>",
-		"<h2>Introduction</h2>",
-		"<p>The topic of the  <strong>best</strong> dessert food is one that has never had a definitive answer. This is often because there are too many factors of taste that must be accounted for.</p>",
-		"<p>These factors include the following:</p>",
-		"<ul>",
-		"\t<li>taste</li>",
-		"\t<li>temperature</li>",
-		"\t<li>price</li>",
-		"</ul>",
-		"<p>Only by considering each of these factors can we truly determine the ultimate dessert.</p>",
-		"<h3>Conclusion</h3>",
-		"<p>The rankings for best desserts are as follows:</p>",
-		"<ol>",
-		"\t<li>Cookies</li>",
-		"\t<li>Ice Cream</li>",
-		"</ol>",
-		"<p>Thank you</p>",
-		"</body>",
+		"\t<body>",
+		"\t\t<h1>Cookies or Ice Cream</h1>",
+		"\t\t<p>by <em>Tyler</em></p>",
+		"\t\t<h2>Introduction</h2>",
+		"\t\t<p>The topic of the  <strong>best</strong> dessert food is one that has never had a definitive answer. This is often because there are too many factors of taste that must be accounted for.</p>",
+		"\t\t<p>These factors include the following:</p>",
+		"\t\t<ul>",
+		"\t\t\t<li>taste</li>",
+		"\t\t\t<li>temperature</li>",
+		"\t\t\t<li>price</li>",
+		"\t\t</ul>",
+		"\t\t<p>Only by considering each of these factors can we truly determine the ultimate dessert.</p>",
+		"\t\t<h3>Conclusion</h3>",
+		"\t\t<p>The rankings for best desserts are as follows:</p>",
+		"\t\t<ol>",
+		"\t\t\t<li>Cookies</li>",
+		"\t\t\t<li>Ice Cream</li>",
+		"\t\t</ol>",
+		"\t\t<p>Thank you</p>",
+		"\t</body>",
 		"</html>",
 	}
 	test := convertTest{caseName: caseName, inputFile: inputCase, outputFile: expectedOutput}

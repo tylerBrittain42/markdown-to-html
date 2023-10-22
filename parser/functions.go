@@ -3,6 +3,7 @@ package parser
 import (
 	"bufio"
 	"io"
+
 	// "os"
 	"bytes"
 	"strings"
@@ -22,8 +23,16 @@ func SecondPass(readFile io.Reader, writeFile io.Writer) {
 
 	for scanner.Scan() {
 		if scanner.Text() != "<p></p>" {
-			_, err := writer.WriteString(scanner.Text() + "\n")
-			check(err)
+			if scanner.Text() == "<html>" || scanner.Text() == "</html>" {
+				_, err := writer.WriteString(scanner.Text() + "\n")
+				check(err)
+			} else if scanner.Text() == "<body>" || scanner.Text() == "</body>" {
+				_, err := writer.WriteString("\t" + scanner.Text() + "\n")
+				check(err)
+			} else {
+				_, err := writer.WriteString("\t\t" + scanner.Text() + "\n")
+				check(err)
+			}
 		}
 	}
 
